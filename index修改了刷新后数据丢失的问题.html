@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>系统健康管理平台</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* 基础样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+        }
+        
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+        
+        /* 登录页面样式 */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        }
+        
+        .login-form {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        .login-form h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .btn:hover {
+            background-color: var(--primary-color);
+        }
+        
+        .error-message {
+            color: var(--danger-color);
+            text-align: center;
+            margin-top: 15px;
+            display: none;
+        }
+        
+        /* 主界面样式 */
+        .main-container {
+            display: none;
+        }
+        
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 0;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+        
+        .user-info span {
+            margin-right: 15px;
+        }
+        
+        .logout-btn {
+            background-color: var(--danger-color);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        
+        /* 导航样式 */
+        .tabs {
+            display: flex;
+            background-color: var(--light-color);
+            border-bottom: 2px solid var(--secondary-color);
+            overflow-x: auto;
+        }
+        
+        .tab {
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            white-space: nowrap;
+        }
+        
+        .tab.active {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+        
+        .tab:hover {
+            background-color: #d6dbdf;
+        }
+        
+        /* 内容区域样式 */
+        .content {
+            padding: 20px;
+            background-color: white;
+            min-height: 500px;
+            border-radius: 0 0 5px 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* 仪表盘样式 */
+        .dashboard {
+            text-align: center;
+        }
+        
+        .gauge-container {
+            position: relative;
+            width: 350px;
+            height: 200px;
+            margin: 0 auto 30px;
+        }
+        
+        .gauge {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .gauge-value {
+            position: absolute;
+            bottom: 30px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .gauge-control {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            display: inline-block;
+        }
+        
+        /* 表格样式 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        table th, table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        table th {
+            background-color: var(--light-color);
+        }
+        
+        /* 编辑按钮样式 */
+        .edit-btn {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+        
+        .save-btn {
+            background-color: var(--success-color);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+        
+        .cancel-btn {
+            background-color: var(--danger-color);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        
+        .add-row-btn {
+            background-color: var(--success-color);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+        
+        /* 表单样式 */
+        .form-actions {
+            margin-top: 20px;
+            text-align: right;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .tabs {
+                flex-wrap: wrap;
+            }
+            
+            .tab {
+                flex: 1 0 50%;
+                text-align: center;
+            }
+            
+            .gauge-container {
+                width: 250px;
+                height: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 登录页面 -->
+    <div class="login-container" id="loginPage">
+        <div class="login-form">
+            <h2>系统健康管理平台</h2>
+            <div class="form-group">
+                <label for="username">用户名</label>
+                <input type="text" id="username" placeholder="请输入用户名">
+            </div>
+            <div class="form-group">
+                <label for="password">密码</label>
+                <input type="password" id="password" placeholder="请输入密码">
+            </div>
+            <button class="btn" id="loginBtn">登录</button>
+            <div class="error-message" id="errorMessage">用户名或密码错误</div>
+        </div>
+    </div>
+
+    <!-- 主界面 -->
+    <div class="main-container" id="mainPage">
+        <header>
+            <div class="container header-content">
+                <div class="logo">欢迎黄教授莅临指导</div>
+                <div class="user-info">
+                    <span id="currentUser">管理员</span>
+                    <button class="logout-btn" id="logoutBtn">退出</button>
+                </div>
+            </div>
+        </header>
+
+        <div class="container">
+            <div class="tabs">
+                <div class="tab active" data-tab="dashboard">总览</div>
+                <div class="tab" data-tab="knowledge">KBA</div>
+                <div class="tab" data-tab="software">软件更新</div>
+                <div class="tab" data-tab="assets">资产</div>
+                <div class="tab" data-tab="support">支持</div>
+                <div class="tab" data-tab="system">系统信息</div>
+            </div>
+
+            <div class="content">
+                <!-- 总览 -->
+                <div class="tab-content active" id="dashboard">
+                    <div class="dashboard">
+                        <h2>系统健康值</h2>
+                        <div class="gauge-container">
+                            <canvas class="gauge" id="gaugeCanvas" width="300" height="180"></canvas>
+                            <div class="gauge-value" id="gaugeValue">3.2</div>
+                        </div>
+                        <div class="gauge-control" id="gaugeControl">
+                            <label for="gaugeInput">调整仪表值 (0-10):</label>
+                            <input type="number" id="gaugeInput" min="0" max="10" value="0.0" step="0.1">
+                            <button class="btn" id="updateGaugeBtn">更新</button>
+                        </div>
+                        
+                        <h3 style="margin-top: 40px;">系统状态概览</h3>
+                        <table id="dashboardTable">
+                            <thead>
+                                <tr>
+                                    <th>Risk Area</th>
+                                    <th>Count</th>
+                                    <th>Health Score Impact</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr data-id="kba">
+                                    <td>Knowledge Base Articles</td>
+                                    <td>141</td>
+                                    <td>4.4</td>
+                                    <td>
+                                        <button class="edit-btn" onclick="editRow(this)">编辑</button>
+                                        <button class="save-btn" style="display:none;" onclick="saveRow(this)">保存</button>
+                                        <button class="cancel-btn" style="display:none;" onclick="cancelEdit(this)">取消</button>
+                                    </td>
+                                </tr>
+                                <tr data-id="software-updates">
+                                    <td>Software Updates</td>
+                                    <td>8</td>
+                                    <td>0.3</td>
+                                    <td>
+                                        <button class="edit-btn" onclick="editRow(this)">编辑</button>
+                                        <button class="save-btn" style="display:none;" onclick="saveRow(this)">保存</button>
+                                        <button class="cancel-btn" style="display:none;" onclick="cancelEdit(this)">取消</button>
+                                    </td>
+                                </tr>
+                                <tr data-id="hardware">
+                                    <td>Hardware</td>
+                                    <td>3</td>
+                                    <td>0.3</td>
+                                    <td>
+                                        <button class="edit-btn" onclick="editRow(this)">编辑</button>
+                                        <button class="save-btn" style="display:none;" onclick="saveRow(this)">保存</button>
+                                        <button class="cancel-btn" style="display:none;" onclick="cancelEdit(this)">取消</button>
+                                    </td>
+                                </tr>
+                                <tr data-id="software">
+                                    <td>Software</td>
+                                    <td>1</td>
+                                    <td>1.8</td>
+                                    <td>
+                                        <button class="edit-btn" onclick="editRow(this)">编辑</button>
+                                        <button class="save-btn" style="display:none;" onclick="saveRow(this)">保存</button>
+                                        <button class="cancel-btn" style="display:none;" onclick="cancelEdit(this)">取消</button>
+                                    </td>
+                                </tr>
+								<tr data-id="support-calls">
+                                    <td>Severity A & B Technical Support Calls</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>
+                                        <button class="edit-btn" onclick="editRow(this)">编辑</button>
+                                        <button class="save-btn" style="display:none;" onclick="saveRow(this)">保存</button>
+                                        <button class="cancel-btn" style="display:none;" onclick="cancelEdit(this)">取消</button>
+                                    </td>
+                                </tr>
+								<tr data-id="monitoring">
+                                    <td>System Health Monitoring</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>
+                                        <button class="edit-btn" onclick="editRow(this)">编辑</button>
+                                        <button class="save-btn" style="display:none;" onclick="saveRow(this)">保存</button>
+                                        <button class="cancel-btn" style="display:none;" onclick="cancelEdit(this)">取消</button>
+                                    </td>
+                                </tr>
+								<tr data-id="maintenance">
+                                    <td>Scheduled System Maintenance</td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                    <td>
+                                        <button class="edit-btn" onclick="editRow(this)">编辑</button>
+                                        <button class="save-btn" style="display:none;" onclick="saveRow(this)">保存</button>
+                                        <button class="cancel-btn" style="display:none;" onclick="cancelEdit(this)">取消</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 知识库 -->
+                <div class="tab-content" id="knowledge">
+                    <h2>知识库</h2>
+                    <button class="add-row-btn" id="addKnowledgeBtn" style="display:none;">添加新条目</button>
+                    <table id="knowledgeTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>标题</th>
+                                <th>分类</th>
+                                <th>最后更新</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr data-id="AP-0700-0046">
+                                <td>AP-0700-0046</td>
+                                <td>系统安装指南</td>
+                                <td>安装</td>
+                                <td>2023-09-15</td>
+                                <td>
+                                    <button class="edit-btn" onclick="editRow(this)">编辑</button>
+                                    <button class="save-btn" style="display:none;" onclick="saveRow(this)">保存</button>
+                                    <button class="cancel-btn" style="display:none;" onclick="cancelEdit(this)">取消</button>
+                                </td>
+                            </tr>
+                            <tr data-id="NK-1100-1102">
+                                <td>NK-1100-1102</td>
+                                <td>常见问题解答</td>
+                                <td>支持</td>
+                                <td>2023-10-05</td>
+                                <td>
+                                    <button class="edit-btn" onclick="editRow(this)">编辑</button>
+                                    <button class="save-btn" style="display:none;" onclick="saveRow(this)">保存</button>
+                                    <button class="cancel-btn" style="display:none;" onclick="cancelEdit(this)">取消</button>
+                                </td>
+                            </tr>
+                            <tr data-id="NK-1700-0238">
+                                <td>NK-1700-0238</td>
+                                <td>性能优化技巧</td>
+                                <td>优化</td>
+                                <td>2023-10-18</td>
+                                <td>
+                                    <button class="edit-btn" onclick="editRow(this)">编辑</button>
+                                    <button class="save-btn" style="display:none;" onclick="saveRow(this)">保存</button>
+                                    <button class="cancel-btn" style="display:none;" onclick="cancelEdit(this)">取消</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 软件更新 -->
+                <div class="tab-content" id="software">
+                    <h2>软件更新</h2>
+                    <button class="add-row-btn" id="addSoftwareBtn" style="display:none;">添加更新记录</button>
+                    <table id="softwareTable">
+                        <thead>
+                            <tr>
+                                <th>版本</th>
+                                <th>发布日期</th>
+                                <th>描述</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr data-id="v2.3.1">
+                                <td>v2.3.1</td>
+                                <td>2023-10-15</td>
+                                <td>安全补丁和性能优化</td>
+                                <td>已安装</td>
+                                <td>
+                                    <button class="edit-btn" onclick="editRow(this)">编辑</button>
+                                    <button class="save-btn" style="display:none;" onclick="saveRow(this)">保存</button>
+                                    <button class="cancel-btn" style="display:none;" onclick="cancelEdit(this)">取消</button>
+                                </td>
+                            </tr>
+                            <tr data-id="v2.4.0">
+                                <td>v2.4.0</td>
+                                <td>2023-11-05</td>
+                                <td>新功能添加和界面改进</td>
+                                <td>可用</td>
+                                <td>
+                                    <button class="edit-btn" onclick="editRow(this)">编辑</button>
+                                    <button class="save-btn" style="display:none;" onclick="saveRow(this)">保存</button>
+                                    <button class="cancel-btn" style="display:none;" onclick="cancelEdit(this)">取消</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 资产 -->
+                <div class="tab-content" id="assets">
+                    <h2>资产管理</h2>
+                    <button class="add-row-btn" id="addAssetBtn" style="display:none;">添加资产</button>
+                    <table id="assetsTable">
+                        <thead>
+                            <tr>
+                                <th>资产ID</th>
+                                <th>名称</th>
+                                <th>类型</th>
+                                <th>状态</th>
+                                <th>位置</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr data-id="AST-001">
+                                <td>AST-001</td>
+                                <td>主服务器</td>
+                                <td>硬件</td>
+                                <td>运行中</td>
+                                <td>数据中心A</td>
+                                <td>
+                                    <button class="edit-btn" onclick="editRow(this)">编辑</button>
+                                    <button class="save-btn" style="display:none;" onclick="saveRow(this)">保存</button>
+                                    <button class="cancel-btn" style="display:none;" onclick="cancelEdit(this)">取消</button>
+                                </td>
+                            </tr>
+                            <tr data-id="AST-002">
+                                <td>AST-002</td>
+                                <td>数据库服务器</td>
+                                <td>硬件</td>
+                                <td>运行中</td>
+                                <td>数据中心B</td>
+                                <td>
+                                    <button class="edit-btn" onclick="editRow(this)">编辑</button>
+                                    <button class="save-btn" style="display:none;" onclick="saveRow(this)">保存</button>
+                                    <button class="cancel-btn" style="display:none;" onclick="cancelEdit(this)">取消</button>
+                                </td>
+                            </tr>
+                            <tr data-id="AST-003">
+                                <td>AST-003</td>
+                                <td>备份系统</td>
+                                <td>硬件</td>
+                                <td>待机</td>
+                                <td>数据中心C</td>
+                                <td>
+                                    <button class="edit-btn" onclick="editRow(this)">编辑</button>
+                                    <button class="save-btn" style="display:none;" onclick="saveRow(this)">保存</button>
+                                    <button class="cancel-btn" style="display:none;" onclick="cancelEdit(this)">取消</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 支持 -->
+                <div class="tab-content" id="support">
+                    <h2>技术支持</h2>
+                    <div class="form-group">
+                        <label for="supportSubject">主题</label>
+                        <input type="text" id="supportSubject">
+                    </div>
+                    <div class="form-group">
+                        <label for="supportDescription">问题描述</label>
+                        <textarea id="supportDescription" rows="5" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;"></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn">提交请求</button>
+                    </div>
+                </div>
+
+                <!-- 系统信息 -->
+                <div class="tab-content" id="system">
+                    <h2>系统信息</h2>
+                    <table id="systemTable">
+                        <tr data-id="customer">
+                            <th>Customer</th>
+                            <td>
+                                <span class="info-text">CNOOC CHINA LIMITED PENGBOOPERATING COMPANY</span>
+                                <input type="text" class="info-edit" value="CNOOC CHINA LIMITED PENGBOOPERATING COMPANY" style="display:none; width:100%; padding:5px;">
+                            </td>
+                            <td>
+                                <button class="edit-btn" onclick="editSystemInfo(this)">编辑</button>
+                                <button class="save-btn" style="display:none;" onclick="saveSystemInfo(this)">保存</button>
+                                <button class="cancel-btn" style="display:none;" onclick="cancelSystemEdit(this)">取消</button>
+                            </td>
+                        </tr>
+                        <tr data-id="location">
+                            <th>Location</th>
+                            <td>
+                                <span class="info-text">Tanggu, Tianjin, China</span>
+                                <input type="text" class="info-edit" value="Tanggu, Tianjin, China" style="display:none; width:100%; padding:5px;">
+                            </td>
+                            <td>
+                                <button class="edit-btn" onclick="editSystemInfo(this)">编辑</button>
+                                <button class="save-btn" style="display:none;" onclick="saveSystemInfo(this)">保存</button>
+                                <button class="cancel-btn" style="display:none;" onclick="cancelSystemEdit(this)">取消</button>
+                            </td>
+                        </tr>
+                        <tr data-id="system-id">
+                            <th>System ID:</th>
+                            <td>
+                                <span class="info-text">0001-0004-6021</span>
+                                <input type="text" class="info-edit" value="0001-0004-6021" style="display:none; width:100%; padding:5px;">
+                            </td>
+                            <td>
+                                <button class="edit-btn" onclick="editSystemInfo(this)">编辑</button>
+                                <button class="save-btn" style="display:none;" onclick="saveSystemInfo(this)">保存</button>
+                                <button class="cancel-btn" style="display:none;" onclick="cancelSystemEdit(this)">取消</button>
+                            </td>
+                        </tr>
+                        <tr data-id="description">
+                            <th>Description</th>
+                            <td>
+                                <span class="info-text">DELTAV WHPV</span>
+                                <input type="text" class="info-edit" value="DELTAV WHPV" style="display:none; width:100%; padding:5px;">
+                            </td>
+                            <td>
+                                <button class="edit-btn" onclick="editSystemInfo(this)">编辑</button>
+                                <button class="save-btn" style="display:none;" onclick="saveSystemInfo(this)">保存</button>
+                                <button class="cancel-btn" style="display:none;" onclick="cancelSystemEdit(this)">取消</button>
+                            </td>
+                        </tr>
+                        <tr data-id="product-line">
+                            <th>Product Line</th>
+                            <td>
+                                <span class="info-text">DeltaV</span>
+                                <input type="text" class="info-edit" value="DeltaV" style="display:none; width:100%; padding:5px;">
+                            </td>
+                            <td>
+                                <button class="edit-btn" onclick="editSystemInfo(this)">编辑</button>
+                                <button class="save-btn" style="display:none;" onclick="saveSystemInfo(this)">保存</button>
+                                <button class="cancel-btn" style="display:none;" onclick="cancelSystemEdit(this)">取消</button>
+                            </td>
+                        </tr>
+						<tr data-id="system-version">
+                            <th>System Version</th>
+                            <td>
+                                <span class="info-text">13.3.1</span>
+                                <input type="text" class="info-edit" value="13.3.1" style="display:none; width:100%; padding:5px;">
+                            </td>
+                            <td>
+                                <button class="edit-btn" onclick="editSystemInfo(this)">编辑</button>
+                                <button class="save-btn" style="display:none;" onclick="saveSystemInfo(this)">保存</button>
+                                <button class="cancel-btn" style="display:none;" onclick="cancelSystemEdit(this)">取消</button>
+                            </td>
+                        </tr>
+						<tr data-id="system-category">
+                            <th>System Category:</th>
+                            <td>
+                                <span class="info-text">Standard</span>
+                                <input type="text" class="info-edit" value="Standard" style="display:none; width:100%; padding:5px;">
+                            </td>
+                            <td>
+                                <button class="edit-btn" onclick="editSystemInfo(this)">编辑</button>
+                                <button class="save-btn" style="display:none;" onclick="saveSystemInfo(this)">保存</button>
+                                <button class="cancel-btn" style="display:none;" onclick="cancelSystemEdit(this)">取消</button>
+                            </td>
+                        </tr>
+						<tr data-id="system-size">
+                            <th>System Size:</th>
+                            <td>
+                                <span class="info-text">2425 DST's</span>
+                                <input type="text" class="info-edit" value="2425 DST's" style="display:none; width:100%; padding:5px;">
+                            </td>
+                            <td>
+                                <button class="edit-btn" onclick="editSystemInfo(this)">编辑</button>
+                                <button class="save-btn" style="display:none;" onclick="saveSystemInfo(this)">保存</button>
+                                <button class="cancel-btn" style="display:none;" onclick="cancelSystemEdit(this)">取消</button>
+                            </td>
+                        </tr>
+						<tr data-id="report-date">
+                            <th>Date of Report:</th>
+                            <td>
+                                <span class="info-text">March 1, 2025</span>
+                                <input type="text" class="info-edit" value="March 1, 2025" style="display:none; width:100%; padding:5px;">
+                            </td>
+                            <td>
+                                <button class="edit-btn" onclick="editSystemInfo(this)">编辑</button>
+                                <button class="save-btn" style="display:none;" onclick="saveSystemInfo(this)">保存</button>
+                                <button class="cancel-btn" style="display:none;" onclick="cancelSystemEdit(this)">取消</button>
+                            </td>
+                        </tr>
+						<tr data-id="report-period">
+                            <th>Reporting Period:</th>
+                            <td>
+                                <span class="info-text">September 1, 2024 to March 1, 2025</span>
+                                <input type="text" class="info-edit" value="September 1, 2024 to March 1, 2025" style="display:none; width:100%; padding:5px;">
+                            </td>
+                            <td>
+                                <button class="edit-btn" onclick="editSystemInfo(this)">编辑</button>
+                                <button class="save-btn" style="display:none;" onclick="saveSystemInfo(this)">保存</button>
+                                <button class="cancel-btn" style="display:none;" onclick="cancelSystemEdit(this)">取消</button>
+                            </td>
+                        </tr>
+						<tr data-id="emerson-contact">
+                            <th>Emerson Contact:</th>
+                            <td>
+                                <span class="info-text">Robert Lee</span>
+                                <input type="text" class="info-edit" value="Robert Lee" style="display:none; width:100%; padding:5px;">
+                            </td>
+                            <td>
+                                <button class="edit-btn" onclick="editSystemInfo(this)">编辑</button>
+                                <button class="save-btn" style="display:none;" onclick="saveSystemInfo(this)">保存</button>
+                                <button class="cancel-btn" style="display:none;" onclick="cancelSystemEdit(this)">取消</button>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 预定义用户账户
+        const users = [
+            { username: 'admin', password: 'admin', read: true, write: true },
+            { username: 'emerson1', password: 'emerson1', read: true, write: false },
+            { username: 'Emerson2', password: 'Emerson2', read: true, write: false },
+            { username: 'Emerson3', password: 'Emerson3', read: true, write: false },
+            { username: 'Emerson4', password: 'Emerson4', read: true, write: false }
+        ];
+
+        // 全局变量
+        let currentUser = null;
+        let gaugeValue = 3.2;
+        let editingRows = new Map(); // 存储正在编辑的行数据
+        
+        // 数据版本控制
+        const DATA_VERSION = '1.0';
+
+        // DOM加载完成后执行
+        document.addEventListener('DOMContentLoaded', function() {
+            // 登录功能
+            document.getElementById('loginBtn').addEventListener('click', login);
+            
+            // 退出功能
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+            
+            // 选项卡切换
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // 移除所有active类
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+                    
+                    // 添加active类到当前选项卡
+                    tab.classList.add('active');
+                    const tabId = tab.getAttribute('data-tab');
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+            
+            // 仪表盘控制
+            document.getElementById('updateGaugeBtn').addEventListener('click', updateGauge);
+            
+            // 初始化：从localStorage加载数据
+            loadSavedData();
+            
+            // 初始化仪表盘
+            drawGauge();
+        });
+
+        // 从localStorage加载保存的数据
+        function loadSavedData() {
+            try {
+                // 加载仪表值
+                const savedGaugeValue = localStorage.getItem('gaugeValue');
+                if (savedGaugeValue !== null) {
+                    gaugeValue = parseFloat(savedGaugeValue);
+                    document.getElementById('gaugeInput').value = gaugeValue;
+                }
+                
+                // 加载总览表格数据
+                loadTableData('dashboardTable');
+                
+                // 加载知识库表格数据
+                loadTableData('knowledgeTable');
+                
+                // 加载软件更新表格数据
+                loadTableData('softwareTable');
+                
+                // 加载资产表格数据
+                loadTableData('assetsTable');
+                
+                // 加载系统信息数据
+                loadSystemInfoData();
+                
+                console.log('数据已从本地存储加载');
+            } catch (error) {
+                console.error('加载保存的数据时出错:', error);
+            }
+        }
+        
+        // 加载表格数据
+        function loadTableData(tableId) {
+            const savedData = localStorage.getItem(`${tableId}_${DATA_VERSION}`);
+            if (!savedData) return;
+            
+            try {
+                const data = JSON.parse(savedData);
+                const table = document.getElementById(tableId);
+                
+                data.forEach(rowData => {
+                    const row = table.querySelector(`tr[data-id="${rowData.id}"]`);
+                    if (row) {
+                        const cells = row.querySelectorAll('td:not(:last-child)');
+                        cells.forEach((cell, index) => {
+                            if (index < rowData.values.length) {
+                                cell.textContent = rowData.values[index];
+                            }
+                        });
+                    }
+                });
+            } catch (error) {
+                console.error(`加载表格 ${tableId} 数据时出错:`, error);
+            }
+        }
+        
+        // 加载系统信息数据
+        function loadSystemInfoData() {
+            const savedData = localStorage.getItem(`systemInfo_${DATA_VERSION}`);
+            if (!savedData) return;
+            
+            try {
+                const data = JSON.parse(savedData);
+                
+                data.forEach(item => {
+                    const row = document.querySelector(`#systemTable tr[data-id="${item.id}"]`);
+                    if (row) {
+                        const textSpan = row.querySelector('.info-text');
+                        const editInput = row.querySelector('.info-edit');
+                        
+                        if (textSpan && editInput) {
+                            textSpan.textContent = item.value;
+                            editInput.value = item.value;
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('加载系统信息数据时出错:', error);
+            }
+        }
+        
+        // 保存表格数据到localStorage
+        function saveTableData(tableId) {
+            const table = document.getElementById(tableId);
+            const rows = table.querySelectorAll('tbody tr');
+            const data = [];
+            
+            rows.forEach(row => {
+                const id = row.getAttribute('data-id');
+                const cells = row.querySelectorAll('td:not(:last-child)');
+                const values = Array.from(cells).map(cell => cell.textContent);
+                
+                data.push({ id, values });
+            });
+            
+            try {
+                localStorage.setItem(`${tableId}_${DATA_VERSION}`, JSON.stringify(data));
+            } catch (error) {
+                console.error(`保存表格 ${tableId} 数据时出错:`, error);
+            }
+        }
+        
+        // 保存系统信息数据到localStorage
+        function saveSystemInfoData() {
+            const rows = document.querySelectorAll('#systemTable tr');
+            const data = [];
+            
+            rows.forEach(row => {
+                const id = row.getAttribute('data-id');
+                const textSpan = row.querySelector('.info-text');
+                
+                if (id && textSpan) {
+                    data.push({ id, value: textSpan.textContent });
+                }
+            });
+            
+            try {
+                localStorage.setItem(`systemInfo_${DATA_VERSION}`, JSON.stringify(data));
+            } catch (error) {
+                console.error('保存系统信息数据时出错:', error);
+            }
+        }
+        
+        // 登录功能
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorMessage = document.getElementById('errorMessage');
+            
+            // 验证用户
+            const user = users.find(u => u.username === username && u.password === password);
+            
+            if (user) {
+                currentUser = user;
+                document.getElementById('currentUser').textContent = user.username;
+                document.getElementById('loginPage').style.display = 'none';
+                document.getElementById('mainPage').style.display = 'block';
+                
+                // 根据用户权限显示/隐藏编辑按钮
+                toggleEditButtons(user.write);
+                
+                errorMessage.style.display = 'none';
+            } else {
+                errorMessage.style.display = 'block';
+            }
+        }
+        
+        // 退出功能
+        function logout() {
+            currentUser = null;
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('loginPage').style.display = 'flex';
+            document.getElementById('mainPage').style.display = 'none';
+        }
+        
+        // 根据用户权限显示/隐藏编辑按钮
+        function toggleEditButtons(hasWritePermission) {
+            const editButtons = document.querySelectorAll('.edit-btn, .add-row-btn');
+            
+            if (hasWritePermission) {
+                editButtons.forEach(btn => btn.style.display = 'inline-block');
+            } else {
+                editButtons.forEach(btn => btn.style.display = 'none');
+            }
+        }
+        
+        // 编辑行
+        function editRow(button) {
+            if (!currentUser || !currentUser.write) return;
+            
+            const row = button.closest('tr');
+            const cells = row.querySelectorAll('td:not(:last-child)');
+            const editBtn = row.querySelector('.edit-btn');
+            const saveBtn = row.querySelector('.save-btn');
+            const cancelBtn = row.querySelector('.cancel-btn');
+            
+            // 保存原始值
+            const originalValues = Array.from(cells).map(cell => cell.textContent);
+            editingRows.set(row, originalValues);
+            
+            // 将单元格转换为可编辑状态
+            cells.forEach(cell => {
+                const text = cell.textContent;
+                cell.innerHTML = `<input type="text" value="${text}" style="width:100%; padding:5px;">`;
+            });
+            
+            // 切换按钮显示
+            editBtn.style.display = 'none';
+            saveBtn.style.display = 'inline-block';
+            cancelBtn.style.display = 'inline-block';
+        }
+        
+        // 保存行
+        function saveRow(button) {
+            const row = button.closest('tr');
+            const cells = row.querySelectorAll('td:not(:last-child)');
+            const editBtn = row.querySelector('.edit-btn');
+            const saveBtn = row.querySelector('.save-btn');
+            const cancelBtn = row.querySelector('.cancel-btn');
+            
+            // 获取编辑后的值
+            cells.forEach(cell => {
+                const input = cell.querySelector('input');
+                cell.textContent = input.value;
+            });
+            
+            // 切换按钮显示
+            editBtn.style.display = 'inline-block';
+            saveBtn.style.display = 'none';
+            cancelBtn.style.display = 'none';
+            
+            // 从编辑映射中移除
+            editingRows.delete(row);
+            
+            // 保存到localStorage
+            const tableId = row.closest('table').id;
+            saveTableData(tableId);
+        }
+        
+        // 取消编辑
+        function cancelEdit(button) {
+            const row = button.closest('tr');
+            const cells = row.querySelectorAll('td:not(:last-child)');
+            const editBtn = row.querySelector('.edit-btn');
+            const saveBtn = row.querySelector('.save-btn');
+            const cancelBtn = row.querySelector('.cancel-btn');
+            
+            // 恢复原始值
+            if (editingRows.has(row)) {
+                const originalValues = editingRows.get(row);
+                cells.forEach((cell, index) => {
+                    cell.textContent = originalValues[index];
+                });
+                
+                editingRows.delete(row);
+            }
+            
+            // 切换按钮显示
+            editBtn.style.display = 'inline-block';
+            saveBtn.style.display = 'none';
+            cancelBtn.style.display = 'none';
+        }
+        
+        // 编辑系统信息
+        function editSystemInfo(button) {
+            if (!currentUser || !currentUser.write) return;
+            
+            const row = button.closest('tr');
+            const textSpan = row.querySelector('.info-text');
+            const editInput = row.querySelector('.info-edit');
+            const editBtn = row.querySelector('.edit-btn');
+            const saveBtn = row.querySelector('.save-btn');
+            const cancelBtn = row.querySelector('.cancel-btn');
+            
+            // 保存原始值
+            editingRows.set(row, textSpan.textContent);
+            
+            // 切换显示
+            textSpan.style.display = 'none';
+            editInput.style.display = 'inline-block';
+            editBtn.style.display = 'none';
+            saveBtn.style.display = 'inline-block';
+            cancelBtn.style.display = 'inline-block';
+        }
+        
+        // 保存系统信息
+        function saveSystemInfo(button) {
+            const row = button.closest('tr');
+            const textSpan = row.querySelector('.info-text');
+            const editInput = row.querySelector('.info-edit');
+            const editBtn = row.querySelector('.edit-btn');
+            const saveBtn = row.querySelector('.save-btn');
+            const cancelBtn = row.querySelector('.cancel-btn');
+            
+            // 更新值
+            textSpan.textContent = editInput.value;
+            
+            // 切换显示
+            textSpan.style.display = 'inline';
+            editInput.style.display = 'none';
+            editBtn.style.display = 'inline-block';
+            saveBtn.style.display = 'none';
+            cancelBtn.style.display = 'none';
+            
+            // 从编辑映射中移除
+            editingRows.delete(row);
+            
+            // 保存到localStorage
+            saveSystemInfoData();
+        }
+        
+        // 取消系统信息编辑
+        function cancelSystemEdit(button) {
+            const row = button.closest('tr');
+            const textSpan = row.querySelector('.info-text');
+            const editInput = row.querySelector('.info-edit');
+            const editBtn = row.querySelector('.edit-btn');
+            const saveBtn = row.querySelector('.save-btn');
+            const cancelBtn = row.querySelector('.cancel-btn');
+            
+            // 恢复原始值
+            if (editingRows.has(row)) {
+                editInput.value = editingRows.get(row);
+                editingRows.delete(row);
+            }
+            
+            // 切换显示
+            textSpan.style.display = 'inline';
+            editInput.style.display = 'none';
+            editBtn.style.display = 'inline-block';
+            saveBtn.style.display = 'none';
+            cancelBtn.style.display = 'none';
+        }
+        
+        // 绘制仪表盘
+        function drawGauge() {
+            const canvas = document.getElementById('gaugeCanvas');
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            const centerX = width / 2;
+            const centerY = height - 10;
+            const radius = Math.min(centerX, centerY) - 10;
+            
+            // 清除画布
+            ctx.clearRect(0, 0, width, height);
+            
+            // 绘制外圈
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, Math.PI, 2 * Math.PI, false);
+            ctx.lineWidth = 10;
+            ctx.strokeStyle = '#eee';
+            ctx.stroke();
+            
+            // 计算当前值对应的角度
+            const maxValue = 10;
+            const angle = Math.PI + (gaugeValue / maxValue) * Math.PI;
+            
+            // 绘制当前值弧线
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, Math.PI, angle, false);
+            ctx.lineWidth = 10;
+            
+            // 根据值设置颜色
+            if (gaugeValue < 3) {
+                ctx.strokeStyle = '#e74c3c'; // 红色
+            } else if (gaugeValue < 7) {
+                ctx.strokeStyle = '#f39c12'; // 黄色
+            } else {
+                ctx.strokeStyle = '#2ecc71'; // 绿色
+            }
+            
+            ctx.stroke();
+            
+            // 绘制刻度
+            for (let i = 0; i <= 10; i++) {
+                const angle = Math.PI + (i / 10) * Math.PI;
+                const x1 = centerX + (radius - 15) * Math.cos(angle);
+                const y1 = centerY + (radius - 15) * Math.sin(angle);
+                const x2 = centerX + radius * Math.cos(angle);
+                const y2 = centerY + radius * Math.sin(angle);
+                
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = '#333';
+                ctx.stroke();
+                
+                // 绘制刻度值
+                if (i % 2 === 0) {
+                    const textX = centerX + (radius - 30) * Math.cos(angle);
+                    const textY = centerY + (radius - 30) * Math.sin(angle);
+                    ctx.font = '12px Arial';
+                    ctx.fillStyle = '#333';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(i.toString(), textX, textY);
+                }
+            }
+            
+            // 更新显示的值
+            document.getElementById('gaugeValue').textContent = gaugeValue.toFixed(1);
+        }
+        
+        // 更新仪表盘
+        function updateGauge() {
+            const inputValue = parseFloat(document.getElementById('gaugeInput').value);
+            
+            if (!isNaN(inputValue) && inputValue >= 0 && inputValue <= 10) {
+                gaugeValue = inputValue;
+                
+                // 保存到localStorage
+                localStorage.setItem('gaugeValue', gaugeValue.toString());
+                
+                // 重新绘制仪表盘
+                drawGauge();
+            } else {
+                alert('请输入0到10之间的有效数字');
+            }
+        }
+    </script>
+</body>
+</html>
